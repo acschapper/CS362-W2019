@@ -643,25 +643,31 @@ int getCost(int cardNumber)
   return -1;
 }
 
-
-//Refactor 5 Cards.  Smithy, Adventurer, council_room, feast, mine
-smithyRefactor(int currentPlayer, struct gameState *state, int handPos)
+int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
 {
-	 int i;
-	 //+3 Cards
-      for (i = 0; i < handPos; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
-      return 0;
-}
+  int i;
+  int j;
+  int k;
+  int x;
+  int index;
+  int currentPlayer = whoseTurn(state);
+  int nextPlayer = currentPlayer + 1;
 
-adventurerRefactor(int drawntreasure, struct gameState *state, int currentPlayer, int cardDrawn, int temphand, int *z)
-{
-	while(drawntreasure<2){
+  int tributeRevealedCards[2] = {-1, -1};
+  int temphand[MAX_HAND];// moved above the if statement
+  int drawntreasure=0;
+  int cardDrawn;
+  int z = 0;// this is the counter for the temp hand
+  if (nextPlayer > (state->numPlayers - 1)){
+    nextPlayer = 0;
+  }
+  
+	
+  //uses switch to select card and perform actions
+  switch( card ) 
+    {
+    case adventurer:
+      while(drawntreasure<2){
 	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
 	  shuffle(currentPlayer, state);
 	}
@@ -672,7 +678,7 @@ adventurerRefactor(int drawntreasure, struct gameState *state, int currentPlayer
 	else{
 	  temphand[z]=cardDrawn;
 	  state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
-	  z=0;
+	  z++;
 	}
       }
       while(z-1>=0){
@@ -680,14 +686,10 @@ adventurerRefactor(int drawntreasure, struct gameState *state, int currentPlayer
 	z=z-1;
       }
       return 0;
-}
-
-int council_roomRefactor(int currentPlayer, struct gameState *state, int handPos)
-{
-	int i;
-	
-	//+4 Cards
-      for (i = 0; i < 5; i++)
+			
+    case council_room:
+      //+4 Cards
+      for (i = 0; i < 4; i++)
 	{
 	  drawCard(currentPlayer, state);
 	}
@@ -708,13 +710,9 @@ int council_roomRefactor(int currentPlayer, struct gameState *state, int handPos
       discardCard(handPos, currentPlayer, state, 0);
 			
       return 0;
-}
-
-int feastRefactor(int currentPlayer, struct gameState *state, int *temphand, int choice1)
-{
-	int i;
-	int x;
-	//gain card with cost up to 5
+			
+    case feast:
+      //gain card with cost up to 5
       //Backup hand
       for (i = 0; i <= state->handCount[currentPlayer]; i++){
 	temphand[i] = state->hand[currentPlayer][i];//Backup card
@@ -765,14 +763,12 @@ int feastRefactor(int currentPlayer, struct gameState *state, int *temphand, int
       //Reset Hand
       			
       return 0;
-}
-
-int mineRefactor(int currentPlayer, struct gameState *state, int choice1, int choice2, int handPos)
-{
-	int i;
-	int j;
-	
-	j = state->hand[currentPlayer][choice1];  //store card we will trash
+			
+    case gardens:
+      return -1;
+			
+    case mine:
+      j = state->hand[currentPlayer][choice1];  //store card we will trash
 
       if (state->hand[currentPlayer][choice1] < copper || state->hand[currentPlayer][choice1] > gold)
 	{
@@ -805,46 +801,6 @@ int mineRefactor(int currentPlayer, struct gameState *state, int choice1, int ch
 	}
 			
       return 0;
-}
-
-
-int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState *state, int handPos, int *bonus)
-{
-  int i;
-  int j;
-  int k;
-  int x;
-  int index;
-  int currentPlayer = whoseTurn(state);
-  int nextPlayer = currentPlayer + 1;
-
-  int tributeRevealedCards[2] = {-1, -1};
-  int temphand[MAX_HAND];// moved above the if statement
-  int drawntreasure=0;
-  int cardDrawn;
-  int z = 0;// this is the counter for the temp hand
-  if (nextPlayer > (state->numPlayers - 1)){
-    nextPlayer = 0;
-  }
-  
-	
-  //uses switch to select card and perform actions
-  switch( card ) 
-    {
-    case adventurer:
-      adventurerRefactor(drawntreasure, state, currentPlayer, cardDrawn, temphand, &z);
-			
-    case council_room:
-      council_roomRefactor(currentPlayer, state, handPos);
-			
-    case feast:
-		return feastRefactor(currentPlayer, state, &temphand, choice1);
-		
-	case gardens:
-      return -1;
-			
-    case mine:
-		mineRefactor(currentPlayer, state, choice2, choice1, handPos);
 			
     case remodel:
       j = state->hand[currentPlayer][choice1];  //store card we will trash
@@ -868,10 +824,20 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 	      break;
 	    }
 	}
+
+
       return 0;
 		
     case smithy:
-     smithyRefactor(currentPlayer, state, handPos);
+      //+3 Cards
+      for (i = 0; i < 3; i++)
+	{
+	  drawCard(currentPlayer, state);
+	}
+			
+      //discard card from hand
+      discardCard(handPos, currentPlayer, state, 0);
+      return 0;
 		
     case village:
       //+1 Card
