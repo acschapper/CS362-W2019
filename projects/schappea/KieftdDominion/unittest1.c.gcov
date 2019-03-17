@@ -1,0 +1,54 @@
+        -:    0:Source:unittest1.c
+        -:    0:Graph:unittest1.gcno
+        -:    0:Data:unittest1.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "dominion.h"
+        -:    2:#include "dominion_helpers.h"
+        -:    3:#include "rngs.h"
+        -:    4:#include <string.h>
+        -:    5:#include <stdio.h>
+        -:    6:#include <math.h>
+        -:    7:#include <stdlib.h>
+        -:    8:#include <assert.h>
+        -:    9:
+        1:   10:int main (int argc, char** argv)	
+        -:   11:{
+        -:   12:	struct gameState state1;
+        -:   13:	struct gameState state2;
+        -:   14:	struct gameState state3;
+        1:   15:	int supplyPos = 2;
+        -:   16:	
+        1:   17: 	printf("\n----------Start Testing Buy Card----------\n");
+        -:   18:	
+        1:   19:	state1.numBuys = 2;
+        1:   20:	state1.coins = 4;
+        1:   21:	state2.numBuys = 2;
+        1:   22:	state2.coins = 10;
+        1:   23:	state3.numBuys = 0;
+        1:   24:	state3.coins = 10;
+        -:   25:	
+        1:   26:	printf("Testing for not enough coins\n");
+        1:   27: 	if(buyCard(supplyPos, &state1) == -1)
+        1:   28:		printf("Passed when testing %d coins\n", state1.coins);
+        -:   29:	else
+    #####:   30:		printf("Failed when testing %d coins\n", state1.coins);
+        -:   31:		
+        1:   32: 	printf("Test for enough coins\n");
+        1:   33:	if(buyCard(supplyPos, &state2) == 0)
+    #####:   34:		printf("Passed when testing %d coins\n", state2.coins);
+        -:   35:	else
+        1:   36:		printf("Failed when testing %d coins\n", state2.coins);
+        -:   37:		
+        -:   38:		
+        1:   39: 	printf("Testing for enough coins and  no buy potential\n");
+        1:   40:	if(buyCard(supplyPos, &state3) == -1)
+        1:   41:		printf("Passed when testing %d coins & %d buy\n", state3.coins, state3.numBuys);
+        -:   42:	else
+    #####:   43:		printf("Failed when testing %d coins\n", state3.coins);
+        -:   44:	
+        -:   45:		
+        1:   46: 	printf("\n----------End Testing Buy Card----------\n"); 
+        -:   47:	
+        1:   48: 	return 0;	
+        -:   49:}
